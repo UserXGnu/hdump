@@ -112,21 +112,30 @@ int main(int argc, char *argv[])
 	 * 	ja que nenhum arquivo ou opção foi provida 
 	 * 	pelo usuário.
 	 */
+	in = available_input ();
 	if (argc < 2)
+	{
 #ifndef __unix__
 		USAGE;
 #else 
-	{  
+	  
 		if (!(file = fopen ("/dev/stdin", "rb")))
 			fatal ("checking standart input");
-		if (!(in = available_input ()))
+		if (!in)
 			USAGE;
 
 		if (!(file = fopen ("/dev/stdin", "rb")))
 			fatal ("opening standart input");
 		
-	}
+	
+
 #endif /* __unix__ */
+	} 
+	else 
+	{
+ 		if (!in && (strstr (argv [argc-2], "-")))
+			USAGE;
+	}
 
 	while ((c = getopt (argc, argv, "c:s:n:vh")) != -1)
 	{
@@ -160,10 +169,11 @@ int main(int argc, char *argv[])
 	 * 	passados.
 	 */
 	if (!file) {
-#ifndef __unix__
+
+#ifndef __unix__	
 		if (!(file = fopen (argv[argc-1], "rb")))
-#else 
-		if (!(file = fopen ((available_input () ? "/dev/stdin" : argv[argc-1]), "rb")))
+#else 	
+		if (!(file = fopen ((in ? "/dev/stdin" : argv[argc-1]), "rb")))
 #endif /* __unix__ */
 			fatal("file not found or not readable");
 	}
